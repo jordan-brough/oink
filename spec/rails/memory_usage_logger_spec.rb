@@ -49,6 +49,7 @@ describe Oink::MemoryUsageLogger do
 
         File.should_receive(:read).with("/proc/self/statm").and_return(statm_file)
         controller = ApplicationController.new
+        controller.should_receive(:`).with('getconf PAGESIZE').and_return("4096\n")
         controller.index 
         controller.logger.log.should == [[:info, "Memory usage: #{pages * 4} | PID: #{$$}"]]
       end

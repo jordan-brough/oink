@@ -22,7 +22,7 @@ module Oink
           end
           mem.to_i / 1000
         elsif pages = File.read("/proc/self/statm") rescue nil
-          pages.to_i * 4 # NOTE: assumes 4k page size
+          pages.to_i * statm_page_size
         elsif proc_file = File.new("/proc/#{$$}/smaps") rescue nil
           proc_file.map do |line|
             size = line[/Size: *(\d+)/, 1] and size.to_i
@@ -30,6 +30,10 @@ module Oink
         else
           `ps -o vsz= -p #{$$}`.to_i
         end
+      end
+
+      def statm_page_size
+        @statm_page_size ||= `getconf PAGESIZE`.strip.to_i / 1024
       end
 
       def log_memory_usage
